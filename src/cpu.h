@@ -43,7 +43,10 @@ typedef struct {
 } RL78_CPU;
 
 uint8_t read8(RL78_CPU* cpu, uint16_t addr16);
+uint8_t read8_indir(RL78_CPU* cpu, uint16_t addr16);
 void write8(RL78_CPU* cpu, uint16_t addr16, uint8_t data);
+void write8_indir(RL78_CPU* cpu, uint16_t addr16, uint8_t data);
+
 uint8_t fetch8(RL78_CPU* cpu);
 uint16_t fetch16(RL78_CPU* cpu);
 void cpu_init(RL78_CPU* cpu);

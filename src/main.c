@@ -10,7 +10,7 @@ static void load_test_program(RL78_CPU* cpu)
     cpu->memory[0x0002] = 0x20;
     cpu->memory[0x0003] = 0x16;
     cpu->memory[0x0004] = 0xF7;
-}   
+}
 
 int main(void)
 {

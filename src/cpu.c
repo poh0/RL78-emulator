@@ -12,10 +12,26 @@ uint8_t read8(RL78_CPU* cpu, uint16_t addr16)
     return cpu->memory[full_addr];
 }
 
+uint8_t read8_indir(RL78_CPU* cpu, uint16_t addr16)
+{
+    // Resolve full 1 MB address if we want ES-prefixed address
+    uint32_t full_addr = cpu->ext_addressing ? ((uint32_t)(cpu->ES) << 16) | addr16 : addr16 | 0xF0000; 
+    full_addr &= 0xFFFFF;  // Mask to 20-bit address
+    return cpu->memory[full_addr];
+}
+
 void write8(RL78_CPU* cpu, uint16_t addr16, uint8_t data)
 {
     // Resolve full 1 MB address if we want ES-prefixed address
     uint32_t full_addr = cpu->ext_addressing ? ((uint32_t)(cpu->ES) << 16) | addr16 : addr16;
+    full_addr &= 0xFFFFF;  // Mask to 20-bit address
+    cpu->memory[full_addr] = data;
+}
+
+void write8_indir(RL78_CPU* cpu, uint16_t addr16, uint8_t data)
+{
+    // Resolve full 1 MB address if we want ES-prefixed address
+    uint32_t full_addr = cpu->ext_addressing ? ((uint32_t)(cpu->ES) << 16) | addr16 : addr16 | 0xF0000;
     full_addr &= 0xFFFFF;  // Mask to 20-bit address
     cpu->memory[full_addr] = data;
 }
@@ -128,6 +144,28 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x85:
         case 0x86:
         case 0x87: inc_r(cpu); break;
+        
+        case 0x89: mov_a_indir_rp(cpu); break;
+        case 0x8A: mov_a_indir_rp_offset(cpu); break;
+        case 0x8B: mov_a_indir_rp(cpu); break;
+        case 0x8C: mov_a_indir_rp_offset(cpu); break;
+
+        // MOV A, sfr
+        case 0x8E:
+            switch (opcode_2nd)
+            {
+            case 0xFC:
+                /* code */
+                break;
+            
+            default:
+                break;
+            }
+
+        case 0x99: mov_indir_rp_a(cpu); break;
+        case 0x9A: mov_indir_rp_offset_a(cpu); break;
+        case 0x9B: mov_indir_rp_a(cpu); break;
+        case 0x9C: mov_indir_rp_offset_a(cpu); break;
 
         case 0xCF: mov_addr16_imm8(cpu); break;
 
