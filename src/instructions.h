@@ -4,6 +4,8 @@ void mov_r_imm8(RL78_CPU* cpu);
 void mov_a_r(RL78_CPU* cpu);
 void mov_r_a(RL78_CPU* cpu);
 
+void mov_addr16_imm8(RL78_CPU* cpu);
+
 void inc_r(RL78_CPU* cpu);
 void br_ax(RL78_CPU* cpu);
 

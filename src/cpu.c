@@ -4,19 +4,26 @@
 
 #define GET_LREG(cpu, idx) (cpu->GPR)
 
-
-uint8_t read8(RL78_CPU* cpu, uint32_t addr)
+uint8_t read8(RL78_CPU* cpu, uint16_t addr16)
 {
-    if (addr > 0xFFFF) {
-        printf("Out of bounds read\n");
-        return 0;
-    }
-    return cpu->memory[addr];
+    // Resolve full 1 MB address if we want ES-prefixed address
+    uint32_t full_addr = cpu->ext_addressing ? ((uint32_t)(cpu->ES) << 16) | addr16 : addr16;
+    full_addr &= 0xFFFFF;  // Mask to 20-bit address
+    return cpu->memory[full_addr];
 }
 
+void write8(RL78_CPU* cpu, uint16_t addr16, uint8_t data)
+{
+    // Resolve full 1 MB address if we want ES-prefixed address
+    uint32_t full_addr = cpu->ext_addressing ? ((uint32_t)(cpu->ES) << 16) | addr16 : addr16;
+    full_addr &= 0xFFFFF;  // Mask to 20-bit address
+    cpu->memory[full_addr] = data;
+}
+
+// Fetch instruction opcode/operands, increments PC
 uint8_t fetch8(RL78_CPU* cpu)
 {
-    uint8_t byte = read8(cpu, GET_PC(cpu));
+    uint8_t byte = cpu->memory[GET_PC(cpu)];
     INC_PC(cpu, 1);
     return byte;
 }
@@ -32,8 +39,10 @@ void cpu_init(RL78_CPU* cpu)
 {
     cpu->PC = 0x0000;
     cpu->SP = 0xf0000;  // "reset signal generation makes the SP contents undefined" manual pg. 11
-    // cpu->PSW.AC = 0,
-    cpu->PSW.asWord = 0;
+    cpu->PSW.asByte = 0x06;
+    cpu->ES = 0x0F;
+    cpu->CS = 0x00;
+
     memset(cpu->regs.R, 0, sizeof(cpu->regs.R)); // set general purpose registers to 0
     memset(cpu->memory, 0, MEM_SIZE);
 }
@@ -42,9 +51,21 @@ void cpu_cycle(RL78_CPU* cpu)
 {
     uint8_t opcode_1st = read8(cpu, GET_PC(cpu));
     uint8_t opcode_2nd = read8(cpu, GET_PC(cpu) + 1);
+
+    // Handle instructions with ES:
+    // Note: 
+    // - using the ES: prefix adds EXACTLY ONE additional cycle to the base instruction's execution time
+    if (opcode_1st == 0x11) {
+        INC_PC(cpu, 1);
+        opcode_1st = read8(cpu, GET_PC(cpu));
+        opcode_2nd = read8(cpu, GET_PC(cpu) + 1);
+        cpu->ext_addressing = true;
+    }
+
     switch (opcode_1st) {
         case 0x00: nop_inst(cpu); break;
         case 0x0C: add_a_imm8(cpu); break;
+        // 0x11: Extended addressing
         case 0x12: movw_rp_ax(cpu); break;
         case 0x13: movw_ax_rp(cpu); break;
         case 0x14: movw_rp_ax(cpu); break;
@@ -108,6 +129,8 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x86:
         case 0x87: inc_r(cpu); break;
 
+        case 0xCF: mov_addr16_imm8(cpu); break;
+
         case 0xE0:
         case 0xE1:
         case 0xE2:
@@ -136,7 +159,7 @@ void dump_cpu_state(const RL78_CPU* cpu)
     printf("\nCPU State:\n");
     printf("PC:     0x%04X\n", cpu->PC);
     printf("SP:     0x%04X\n", cpu->SP);
-    printf("PSW:    0x%02X\n", cpu->PSW.asWord);
+    printf("PSW:    0x%02X\n", cpu->PSW.asByte);
     // general purpose regs
     for (int i = 0; i < 8; i++) {
         printf("R%d:    0x%02X\n", i, cpu->regs.R[i]);
@@ -145,5 +168,6 @@ void dump_cpu_state(const RL78_CPU* cpu)
     for (int i = 0; i < 4; i++) {
         printf("RP%d:   0x%04X\n", i, cpu->regs.RP[i]);
     }
+
     printf("----------------------\n");
 }

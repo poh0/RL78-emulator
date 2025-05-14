@@ -11,7 +11,7 @@
 #ifdef _DEBUG
 #define LOG(...) printf(__VA_ARGS__)
 #else
-#define LOG(X) ;
+#define LOG(...) ;
 #endif
 
 #define AX cpu->regs.RP[1]
@@ -64,6 +64,13 @@ void mov_r_a(RL78_CPU* cpu)
     uint8_t reg_idx = opcode - 0x70;
     cpu->regs.R[reg_idx] = cpu->regs.R[1];
     LOG("Executed MOV R%d, R1\n", reg_idx);
+}
+
+void mov_addr16_imm8(RL78_CPU* cpu)
+{
+    uint16_t addr16 = fetch16(cpu);
+    uint8_t data = fetch8(cpu);
+    write8(cpu, addr16, data);
 }
 
 // Increment a value in a general purpose register by 1
@@ -223,3 +230,5 @@ void add_r_a(RL78_CPU* cpu)
 
     LOG("Executed ADD R%d, A\n", operand - 0x00);
 }
+
+
