@@ -12,4 +12,4 @@ set(CMAKE_C_STANDARD 11)
 project ("RL78-emulator")
 
 # Add source to this project's executable.
-add_executable (RL78-emulator "src/main.c" "src/cpu.c" "src/util.c" "src/regs.h" "src/instructions.c")
+add_executable (RL78-emulator "src/main.c" "src/cpu.c" "src/util.c" "src/instructions.c")

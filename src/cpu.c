@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "instructions.h"
 #include <stdio.h>
+#include <string.h>
 
 #define GET_LREG(cpu, idx) (cpu->GPR)
 
