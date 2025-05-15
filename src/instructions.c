@@ -1,10 +1,6 @@
 #include "cpu.h"
 #include "instructions.h"
 
-#define MEM(x) cpu->memory[x]
-
-#define OPERAND(n) cpu->memory[GET_PC(cpu) + n]
-
 #define LOBYTE(w) ((uint8_t)w)
 #define HIBYTE(w) ((uint8_t)(((uint16_t)(w) >> 8) & 0xFF))
 
@@ -99,7 +95,7 @@ void mov_a_indir_rp_offset(RL78_CPU* cpu)
     if (cpu->ext_addressing) {
         LOG("Executed MOV A, ES:[R%d + 0x%02X]\n", reg_idx, offset);
     }
-    LOG("Executed MOV A, [R%d + 0x%02X]\n", reg_idx, offset);
+    else LOG("Executed MOV A, [R%d + 0x%02X]\n", reg_idx, offset);
 }
 
 void mov_indir_rp_a(RL78_CPU* cpu)
@@ -125,6 +121,50 @@ void mov_indir_rp_offset_a(RL78_CPU* cpu)
         LOG("Executed MOV ES:[R%d + 0x%02X], A\n", reg_idx, offset);
     }
     else LOG("Executed MOV [R%d + 0x%02X], A\n", reg_idx, offset);
+}
+
+void mov_saddr_imm8(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t saddr = fetch8(cpu);
+    uint8_t data = fetch8(cpu);
+    write8_saddr(cpu, saddr, data);
+    LOG("Executed MOV 0x%02X, 0x%02X\n", saddr, data);
+}
+
+void mov_r_saddr(RL78_CPU* cpu)
+{
+    uint8_t opcode = fetch8(cpu);
+    uint8_t saddr = fetch8(cpu);
+    uint8_t reg_idx;
+    switch (opcode)
+    {
+    case 0x8D:
+        reg_idx = 1;
+        break;
+    case 0xE8:
+        reg_idx = 3;
+        break;
+    case 0xF8:
+        reg_idx = 2;
+        break;
+    case 0xD8:
+        reg_idx = 0;
+        break;
+    default:
+        reg_idx = 0;
+        break;
+    }
+    cpu->regs.R[reg_idx] = read8_saddr(cpu, saddr);
+    LOG("Executed MOV R%d, 0x%02X\n", reg_idx, saddr);
+}
+
+void mov_saddr_a(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t saddr = fetch8(cpu);
+    write8_saddr(cpu, saddr, cpu->regs.R[0]);
+    LOG("Executed MOV 0x%02X, A\n", saddr);
 }
 
 // Increment a value in a general purpose register by 1
