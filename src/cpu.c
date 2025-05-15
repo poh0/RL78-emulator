@@ -134,6 +134,10 @@ void cpu_cycle(RL78_CPU* cpu)
                 case 0x0F: add_a_r(cpu); break;
 
                 case 0xCD: br_ax(cpu); break;
+                case 0xC9: mov_a_indir_hl_plus_r(cpu); break;
+                case 0xD9: mov_indir_hl_plus_r_a(cpu); break;
+                case 0xE9: mov_a_indir_hl_plus_r(cpu); break;
+                case 0xF9: mov_indir_hl_plus_r_a(cpu); break;
                 case 0x8A:
                 case 0x8B:
                 case 0x8C:
@@ -180,14 +184,22 @@ void cpu_cycle(RL78_CPU* cpu)
             default:
                 break;
             }
-
+        
+        case 0x8F: mov_r_addr16(cpu); break;
+        
         case 0x99: mov_indir_rp_a(cpu); break;
         case 0x9A: mov_indir_rp_offset_a(cpu); break;
         case 0x9B: mov_indir_rp_a(cpu); break;
         case 0x9C: mov_indir_rp_offset_a(cpu); break;
         case 0x9D: mov_saddr_a(cpu); break;
+
+        case 0xCA: mov_indir_rp_offset_imm8(cpu); break;
+        case 0xCC: mov_indir_rp_offset_imm8(cpu); break;
         case 0xCD: mov_saddr_imm8(cpu); break;
         case 0xCF: mov_addr16_imm8(cpu); break;
+        
+        case 0xD8: mov_r_saddr(cpu); break;
+        case 0xD9: mov_r_addr16(cpu); break;
 
         case 0xE0:
         case 0xE1:
@@ -196,11 +208,8 @@ void cpu_cycle(RL78_CPU* cpu)
 
         case 0xE6:
         case 0xE7: onew_rp(cpu); break;
-
         case 0xE8: mov_r_saddr(cpu); break;
-        case 0xE9: mov_r_saddr(cpu); break;
-
-        case 0xD8: mov_r_saddr(cpu); break;
+        case 0xE9: mov_r_addr16(cpu); break;
 
         case 0xF0:
         case 0xF1:
@@ -209,6 +218,8 @@ void cpu_cycle(RL78_CPU* cpu)
 
         case 0xF6:
         case 0xF7: clrw_rp(cpu); break;
+        case 0xF8: mov_r_saddr(cpu); break;
+        case 0xF9: mov_r_addr16(cpu); break;
 
         default:
             printf("Unknown opcode: 0x%02X at PC=0x%04X\n", opcode_1st, GET_PC(cpu));

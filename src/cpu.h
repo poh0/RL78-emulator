@@ -38,20 +38,21 @@ typedef struct {
     uint8_t CS;  // Code segment register
     PSW_u PSW; // Program status word
     GPR_u regs;  // 4 x 16-bit general pupose register pairs (8 x 8 bit GPRs)
-    uint8_t memory[MEM_SIZE]; // 1 MB address space
     bool ext_addressing; // When opcode 0x11 is encountered, this is set to true. 
+    uint8_t memory[MEM_SIZE]; // 1 MB address space
 } RL78_CPU;
 
 uint8_t read8(RL78_CPU* cpu, uint16_t addr16);
 uint8_t read8_indir(RL78_CPU* cpu, uint16_t addr16);
 uint8_t read8_saddr(RL78_CPU* cpu, uint8_t saddr);
+
 void write8(RL78_CPU* cpu, uint16_t addr16, uint8_t data);
 void write8_indir(RL78_CPU* cpu, uint16_t addr16, uint8_t data);
 void write8_saddr(RL78_CPU* cpu, uint8_t saddr, uint8_t data);
 
-
 uint8_t fetch8(RL78_CPU* cpu);
 uint16_t fetch16(RL78_CPU* cpu);
+
 void cpu_init(RL78_CPU* cpu);
 void cpu_cycle(RL78_CPU* cpu);
 void dump_cpu_state(const RL78_CPU* cpu);

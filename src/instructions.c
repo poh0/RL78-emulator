@@ -73,6 +73,47 @@ void mov_addr16_imm8(RL78_CPU* cpu)
     else LOG("Executed MOV :!0x%04X, 0x%02X\n", addr16, data);
 }
 
+void mov_r_addr16(RL78_CPU* cpu)
+{
+    uint8_t opcode = fetch8(cpu);
+    uint16_t addr16 = fetch16(cpu);
+    uint8_t reg_idx;
+    switch (opcode)
+    {
+    case 0x8F:
+        reg_idx = 1;
+        break;
+    case 0xE9:
+        reg_idx = 3;
+        break;
+    case 0xF9:
+        reg_idx = 2;
+        break;
+    case 0xD9:
+        reg_idx = 0;
+        break;
+    default:
+        reg_idx = 0;
+        break;
+    }
+    cpu->regs.R[reg_idx] = read8(cpu, addr16);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV R%d, ES:!0x%04X\n", reg_idx, addr16);
+    }
+    else LOG("Executed MOV R%d, !0x%04X\n", reg_idx, addr16);
+}
+
+void mov_addr16_a(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint16_t addr = fetch16(cpu);
+    write8(cpu, addr, cpu->regs.R[1]);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV ES:!0x%04X, A\n", addr16);
+    }
+    else LOG("Executed MOV !0x%04X, A\n", addr16);
+}
+
 void mov_a_indir_rp(RL78_CPU* cpu)
 {
     uint8_t opcode = fetch8(cpu);
@@ -103,7 +144,7 @@ void mov_indir_rp_a(RL78_CPU* cpu)
     uint8_t opcode = fetch8(cpu);
     uint8_t reg_idx = opcode == 0x99 ? 2 : 3;
     uint16_t addrIndir = cpu->regs.RP[reg_idx];
-    write8_indir(cpu, addrIndir, cpu->regs.R[0]);
+    write8_indir(cpu, addrIndir, cpu->regs.R[1]);
     if (cpu->ext_addressing) {
         LOG("Executed MOV ES:[R%d], A\n", reg_idx);
     }
@@ -116,11 +157,50 @@ void mov_indir_rp_offset_a(RL78_CPU* cpu)
     uint8_t offset = fetch8(cpu);
     uint8_t reg_idx = opcode == 0x9A ? 2 : 3;
     uint16_t addrIndir = cpu->regs.RP[reg_idx] + offset;
-    write8_indir(cpu, addrIndir, cpu->regs.R[0]);
+    write8_indir(cpu, addrIndir, cpu->regs.R[1]);
     if (cpu->ext_addressing) {
         LOG("Executed MOV ES:[R%d + 0x%02X], A\n", reg_idx, offset);
     }
     else LOG("Executed MOV [R%d + 0x%02X], A\n", reg_idx, offset);
+}
+
+void mov_indir_rp_offset_imm8(RL78_CPU* cpu)
+{
+    uint8_t opcode = fetch8(cpu);
+    uint8_t reg_idx = opcode == 0xCA ? 2 : 3;
+    uint8_t offset = fetch8(cpu);
+    uint8_t data = fetch8(cpu);
+    write8_indir(cpu, cpu->regs.RP[reg_idx] + offset, data);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV ES:[R%d + 0x%02X], 0x%02X\n", reg_idx, offset, data);
+    }
+    else LOG("Executed MOV [R%d + 0x%02X], 0x%02X\n", reg_idx, offset, data);
+}
+
+void mov_a_indir_hl_plus_r(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t oper = fetch8(cpu);
+    uint8_t reg_idx = oper == 0xC9 ? 3 : 2;
+    uint16_t addrIndir = cpu->regs.RP[3] + cpu->regs.R[reg_idx];
+    cpu->regs.RP[1] = read8_indir(cpu, addrIndir);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV A, ES:[HL + R%d]\n", reg_idx);
+    }
+    else LOG("Executed MOV A, [HL + R%d]\n", reg_idx);
+}
+
+void mov_indir_hl_plus_r_a(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t oper = fetch8(cpu);
+    uint8_t reg_idx = oper == 0xD9 ? 3 : 2;
+    uint16_t addrIndir = cpu->regs.RP[3] + cpu->regs.R[reg_idx];
+    cpu->regs.R[1] = read8_indir(cpu, addrIndir);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV ES:[HL + R%d], A\n", reg_idx);
+    }
+    else LOG("Executed MOV [HL + R%d], A\n", reg_idx);
 }
 
 void mov_saddr_imm8(RL78_CPU* cpu)
