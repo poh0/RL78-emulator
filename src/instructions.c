@@ -243,8 +243,35 @@ void mov_saddr_a(RL78_CPU* cpu)
 {
     INC_PC(cpu, 1);
     uint8_t saddr = fetch8(cpu);
-    write8_saddr(cpu, saddr, cpu->regs.R[0]);
+    write8_saddr(cpu, saddr, cpu->regs.R[1]);
     LOG("Executed MOV 0x%02X, A\n", saddr);
+}
+
+void mov_based_r_imm8(RL78_CPU* cpu)
+{
+    uint8_t opcode = fetch8(cpu);
+    uint8_t reg_idx = opcode == 0x19 ? 3 : 2;
+    uint16_t addr = fetch16(cpu);
+    uint16_t indirAddr = addr + cpu->regs.R[reg_idx];
+    uint8_t data = fetch8(cpu);
+    write8_indir(cpu, indirAddr, data);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV ES:0x%04X[R%d], 0x%02X\n", addr, reg_idx, data);
+    }
+    else LOG("Executed MOV 0x%04X[R%d], 0x%02X\n", addr, reg_idx, data);
+}
+
+void mov_based_bc_imm8(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint16_t addr = fetch16(cpu);
+    uint16_t indirAddr = addr + cpu->regs.RP[1]; // TODO: check overflow
+    uint8_t data = fetch8(cpu);
+    write8_indir(cpu, indirAddr, data);
+    if (cpu->ext_addressing) {
+        LOG("Executed MOV ES:0x%04X[BC], 0x%02X\n", addr, data);
+    }
+    else LOG("Executed MOV 0x%04X[BC], 0x%02X\n", addr, data);
 }
 
 // Increment a value in a general purpose register by 1

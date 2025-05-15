@@ -3,11 +3,9 @@
 void mov_r_imm8(RL78_CPU* cpu);
 void mov_a_r(RL78_CPU* cpu);
 void mov_r_a(RL78_CPU* cpu);
-
 void mov_addr16_imm8(RL78_CPU* cpu);
 void mov_r_addr16(RL78_CPU* cpu);
 void mov_addr16_a(RL78_CPU* cpu);
-
 void mov_a_indir_rp(RL78_CPU* cpu);
 void mov_a_indir_rp_offset(RL78_CPU* cpu);
 void mov_indir_rp_a(RL78_CPU* cpu);
@@ -15,11 +13,11 @@ void mov_indir_rp_offset_a(RL78_CPU* cpu);
 void mov_indir_rp_offset_imm8(RL78_CPU* cpu);
 void mov_a_indir_hl_plus_r(RL78_CPU* cpu);
 void mov_indir_hl_plus_r_a(RL78_CPU* cpu);
-
 void mov_saddr_imm8(RL78_CPU* cpu);
 void mov_r_saddr(RL78_CPU* cpu);
 void mov_saddr_a(RL78_CPU* cpu);
-
+void mov_based_r_imm8(RL78_CPU* cpu);
+void mov_based_bc_imm8(RL78_CPU* cpu);
 
 void inc_r(RL78_CPU* cpu);
 void br_ax(RL78_CPU* cpu);

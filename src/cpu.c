@@ -104,7 +104,7 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x15: movw_ax_rp(cpu); break;
         case 0x16: movw_rp_ax(cpu); break;
         case 0x17: movw_ax_rp(cpu); break;
-
+        case 0x19: mov_based_r_imm8(cpu); break;
         case 0x30: movw_rp_imm16(cpu); break;
         case 0x32: movw_rp_imm16(cpu); break;
         case 0x33: xchw_ax_rp(cpu); break;
@@ -112,6 +112,8 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x35: xchw_ax_rp(cpu); break;
         case 0x36: movw_rp_imm16(cpu); break;
         case 0x37: xchw_ax_rp(cpu); break;
+        case 0x38: mov_based_r_imm8(cpu); break;
+        case 0x39: mov_based_bc_imm8(cpu); break;
 
         case 0x50:
         case 0x51:
