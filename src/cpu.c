@@ -113,6 +113,7 @@ void cpu_cycle(RL78_CPU* cpu)
 
     switch (opcode_1st) {
         case 0x00: nop_inst(cpu); break;
+        case 0x08: xch_a_r(cpu); break;
         case 0x0C: add_a_imm8(cpu); break;
         // 0x11: Extended addressing
         case 0x12: movw_rp_ax(cpu); break;
@@ -178,6 +179,13 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x66:
         case 0x67: mov_a_r(cpu); break;
 
+        case 0x70:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77: mov_r_a(cpu); break;
 
         case 0x80:
         case 0x81:
@@ -241,6 +249,7 @@ void cpu_cycle(RL78_CPU* cpu)
             printf("Unknown opcode: 0x%02X at PC=0x%04X\n", opcode_1st, GET_PC(cpu));
             break;
     }
+    cpu->ext_addressing = false;
     dump_cpu_state(cpu);
 }
 

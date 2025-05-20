@@ -18,7 +18,6 @@ void mov_r_saddr(RL78_CPU* cpu);
 void mov_saddr_a(RL78_CPU* cpu);
 void mov_based_r_imm8(RL78_CPU* cpu);
 void mov_based_bc_imm8(RL78_CPU* cpu);
-
 void mov_sfr_imm8(RL78_CPU* cpu);
 void mov_es_imm8(RL78_CPU* cpu);
 void mov_a_sfr(RL78_CPU* cpu);

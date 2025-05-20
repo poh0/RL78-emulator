@@ -79,6 +79,7 @@ void mov_r_a(RL78_CPU* cpu)
 
 void mov_addr16_imm8(RL78_CPU* cpu)
 {
+    INC_PC(cpu, 1);
     uint16_t addr16 = fetch16(cpu);
     uint8_t data = fetch8(cpu);
     write8(cpu, addr16, data);
@@ -488,5 +489,3 @@ void add_r_a(RL78_CPU* cpu)
 
     LOG("Executed ADD R%d, A\n", operand - 0x00);
 }
-
-

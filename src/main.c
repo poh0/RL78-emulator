@@ -5,13 +5,13 @@
 
 static int load_test_program(RL78_CPU* cpu)
 {
-    FILE* file = fopen("test.bin", "rb");
+    FILE* file = fopen("./example_program/test.bin", "rb");
     if (file == NULL)
     {
         return 0;
     }
-
     fread(cpu->memory, sizeof(uint8_t), ROM_SIZE, file);
+    fclose(file);
     return 1;
 }
 
