@@ -109,9 +109,9 @@ void mov_addr16_a(RL78_CPU* cpu)
     uint16_t addr = fetch16(cpu);
     write8(cpu, addr, cpu->regs.R[1]);
     if (cpu->ext_addressing) {
-        LOG("Executed MOV ES:!0x%04X, A\n", addr16);
+        LOG("Executed MOV ES:!0x%04X, A\n", addr);
     }
-    else LOG("Executed MOV !0x%04X, A\n", addr16);
+    else LOG("Executed MOV !0x%04X, A\n", addr);
 }
 
 void mov_a_indir_rp(RL78_CPU* cpu)

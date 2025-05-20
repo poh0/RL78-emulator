@@ -75,6 +75,7 @@ void cpu_init(RL78_CPU* cpu)
     cpu->PSW.asByte = 0x06;
     cpu->ES = 0x0F;
     cpu->CS = 0x00;
+    cpu->ext_addressing = false;
 
     memset(cpu->regs.R, 0, sizeof(cpu->regs.R)); // set general purpose registers to 0
     memset(cpu->memory, 0, MEM_SIZE);
