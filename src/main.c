@@ -28,7 +28,7 @@ int main(void)
 
     for (;;) {
         getchar();
-        cpu_cycle(cpu);
+        cpu_step(cpu);
     }
      
     free(cpu);

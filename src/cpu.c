@@ -96,7 +96,7 @@ void cpu_init(RL78_CPU* cpu)
     memset(cpu->memory, 0, MEM_SIZE);
 }
 
-void cpu_cycle(RL78_CPU* cpu)
+void cpu_step(RL78_CPU* cpu)
 {
     uint8_t opcode_1st = read8(cpu, GET_PC(cpu));
     uint8_t opcode_2nd = read8(cpu, GET_PC(cpu) + 1);

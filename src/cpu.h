@@ -56,5 +56,5 @@ uint16_t fetch16(RL78_CPU* cpu);
 uint8_t* get_sfr(RL78_CPU* cpu, uint8_t code);
 
 void cpu_init(RL78_CPU* cpu);
-void cpu_cycle(RL78_CPU* cpu);
+void cpu_step(RL78_CPU* cpu);
 void dump_cpu_state(const RL78_CPU* cpu);
