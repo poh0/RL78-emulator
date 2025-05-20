@@ -12,6 +12,21 @@
 
 #define AX cpu->regs.RP[1]
 
+static const char* sfr_code_to_name(uint8_t code)
+{
+    switch (code)
+    {
+    case 0xFA:
+        return "PSW";
+    case 0xFC:
+        return "CS";
+    case 0xFD:
+        return "ES";
+    default:
+        break;
+    }
+}
+
 static void solve_add_flags(RL78_CPU* cpu, uint8_t dstval, uint8_t srcval, uint16_t result)
 {
     // Set CY (carry out of bit 7)
@@ -274,6 +289,48 @@ void mov_based_bc_imm8(RL78_CPU* cpu)
     else LOG("Executed MOV 0x%04X[BC], 0x%02X\n", addr, data);
 }
 
+void mov_sfr_imm8(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t code = fetch8(cpu);
+    uint8_t* sfr = get_sfr(cpu, code);
+    uint8_t data = fetch8(cpu);
+    *sfr = data;
+    LOG("Executed MOV %s, 0x%02X\n", sfr_code_to_name(code), data);
+}
+
+void mov_es_imm8(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t data = fetch8(cpu);
+    cpu->ES = data;
+    LOG("Executed MOV ES, 0x%02X\n", data);
+}
+
+void mov_a_sfr(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t code = fetch8(cpu);
+    cpu->regs.R[1] = *get_sfr(cpu, code);
+    LOG("Executed MOV A, %s\n", sfr_code_to_name(code));
+}
+
+void mov_sfr_a(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 1);
+    uint8_t code = fetch8(cpu);
+    *get_sfr(cpu, code) = cpu->regs.R[1];
+    LOG("Executed MOV %s, A\n", sfr_code_to_name(code));
+}
+
+void mov_es_saddr(RL78_CPU* cpu)
+{
+    INC_PC(cpu, 2);
+    uint8_t saddr = fetch8(cpu);
+    cpu->ES = read8_saddr(cpu, saddr);
+    LOG("Executed MOV ES, 0x%02X\n", saddr);
+}
+
 // Increment a value in a general purpose register by 1
 // size: 1
 // 0x80 ... 0x87
@@ -287,7 +344,7 @@ void inc_r(RL78_CPU* cpu)
 
 // Unconditional branch to 16-bit address in AX (RP0) register
 // size: 2
-// 0x61, 0xCD
+// 0x61, 0xCB
 // BR AX
 void br_ax(RL78_CPU* cpu)
 {

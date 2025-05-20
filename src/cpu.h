@@ -5,6 +5,7 @@
 
 #define MEM_SIZE 0x100000 //  1MB address space 
 #define RAM_SIZE 512
+#define ROM_SIZE 4096
 
 // Macros to mask program counter to 20 bits
 #define PC_MASK        0xFFFFF
@@ -52,6 +53,7 @@ void write8_saddr(RL78_CPU* cpu, uint8_t saddr, uint8_t data);
 
 uint8_t fetch8(RL78_CPU* cpu);
 uint16_t fetch16(RL78_CPU* cpu);
+uint8_t* get_sfr(RL78_CPU* cpu, uint8_t code);
 
 void cpu_init(RL78_CPU* cpu);
 void cpu_cycle(RL78_CPU* cpu);

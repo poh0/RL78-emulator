@@ -3,13 +3,16 @@
 
 #include "cpu.h"
 
-static void load_test_program(RL78_CPU* cpu)
+static int load_test_program(RL78_CPU* cpu)
 {
-    cpu->memory[0x0000] = 0x00;
-    cpu->memory[0x0001] = 0x0C;
-    cpu->memory[0x0002] = 0x20;
-    cpu->memory[0x0003] = 0x16;
-    cpu->memory[0x0004] = 0xF7;
+    FILE* file = fopen("test.bin", "rb");
+    if (file == NULL)
+    {
+        return 0;
+    }
+
+    fread(cpu->memory, sizeof(uint8_t), ROM_SIZE, file);
+    return 1;
 }
 
 int main(void)
@@ -17,12 +20,17 @@ int main(void)
     RL78_CPU *cpu = malloc(sizeof(RL78_CPU));
     cpu_init(cpu);
 
-    load_test_program(cpu);
+    if (!load_test_program(cpu))
+    {
+        printf("Couldn't load test.bin\n");
+        return 1;
+    }
 
     for (;;) {
         getchar();
         cpu_cycle(cpu);
     }
-
+     
     free(cpu);
+    return 0;
 }

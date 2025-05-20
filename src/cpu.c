@@ -68,6 +68,21 @@ uint16_t fetch16(RL78_CPU* cpu)
     return (high << 8) | low;
 }
 
+uint8_t* get_sfr(RL78_CPU* cpu,  uint8_t code)
+{
+    switch (code)
+    {
+    case 0xFA:
+        return &cpu->PSW.asByte;
+    case 0xFC:
+        return &cpu->CS;
+    case 0xFD:
+        return &cpu->ES;
+    default:
+        break;
+    }
+}
+
 void cpu_init(RL78_CPU* cpu)
 {
     cpu->PC = 0x0000;
@@ -117,6 +132,8 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x38: mov_based_r_imm8(cpu); break;
         case 0x39: mov_based_bc_imm8(cpu); break;
 
+        case 0x41: mov_es_imm8(cpu);
+
         case 0x50:
         case 0x51:
         case 0x52:
@@ -137,7 +154,7 @@ void cpu_cycle(RL78_CPU* cpu)
                 case 0x0E:
                 case 0x0F: add_a_r(cpu); break;
 
-                case 0xCD: br_ax(cpu); break;
+                case 0xCB: br_ax(cpu); break;
                 case 0xC9: mov_a_indir_hl_plus_r(cpu); break;
                 case 0xD9: mov_indir_hl_plus_r_a(cpu); break;
                 case 0xE9: mov_a_indir_hl_plus_r(cpu); break;
@@ -148,6 +165,8 @@ void cpu_cycle(RL78_CPU* cpu)
                 case 0x8D:
                 case 0x8E:
                 case 0x8F: xch_a_r(cpu); break;
+
+                case 0xB8: mov_es_saddr(cpu); break;
             }
             break;
 
@@ -178,16 +197,7 @@ void cpu_cycle(RL78_CPU* cpu)
 
 
         // MOV A, sfr
-        case 0x8E:
-            switch (opcode_2nd)
-            {
-            case 0xFC:
-                /* code */
-                break;
-            
-            default:
-                break;
-            }
+        case 0x8E: mov_a_sfr(cpu); break;
         
         case 0x8F: mov_r_addr16(cpu); break;
         
@@ -196,10 +206,12 @@ void cpu_cycle(RL78_CPU* cpu)
         case 0x9B: mov_indir_rp_a(cpu); break;
         case 0x9C: mov_indir_rp_offset_a(cpu); break;
         case 0x9D: mov_saddr_a(cpu); break;
+        case 0x9E: mov_sfr_a(cpu);
 
         case 0xCA: mov_indir_rp_offset_imm8(cpu); break;
         case 0xCC: mov_indir_rp_offset_imm8(cpu); break;
         case 0xCD: mov_saddr_imm8(cpu); break;
+        case 0xCE: mov_sfr_imm8(cpu); break;
         case 0xCF: mov_addr16_imm8(cpu); break;
         
         case 0xD8: mov_r_saddr(cpu); break;
